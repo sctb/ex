@@ -79,11 +79,11 @@
 # Destinations for installation. $(PRESERVEDIR) is used for recovery files.
 # It will get mode 1777.
 #
-PREFIX		= /usr/local
+PREFIX	       ?= /usr/local
 BINDIR		= $(PREFIX)/bin
 LIBEXECDIR	= $(PREFIX)/libexec
 MANDIR		= $(PREFIX)/share/man
-PRESERVEDIR	= /var/preserve
+PRESERVEDIR	= $(PREFIX)/var/preserve
 
 #
 # DESTDIR is prepended to the installation paths. It is mostly useful
@@ -94,7 +94,7 @@ DESTDIR		=
 #
 # A BSD-like install program. GNU install will fit well here, too.
 #
-INSTALL		= /usr/ucb/install
+INSTALL		= /usr/bin/install
 
 #
 # Compiler and linker flags.
@@ -201,7 +201,7 @@ OSTYPE	= -DVMUNIX
 # On System V, the terminfo library may be more accurate than the termcap
 # file. To use it, link against the curses library.
 #
-#TERMLIB	= curses
+TERMLIB	= curses
 #
 # You may also get terminfo access by using the ncurses library.
 #
@@ -211,7 +211,7 @@ OSTYPE	= -DVMUNIX
 # provide a good termcap file, or when setting the TERMCAP environment
 # variable is deemed sufficient, is the included 2.11BSD termcap library.
 #
-TERMLIB	= termlib
+#TERMLIB	= termlib
 
 #
 # Since ex uses sbrk() internally, a conflict with the libc's version of
