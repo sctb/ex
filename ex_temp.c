@@ -681,7 +681,7 @@ YANKreg(register int c)
 			if (addr == addr2)
 				*wcursor = 0;
 			if (addr == addr1)
-				strcpy(linebuf, cursor);
+				memmove(linebuf, cursor, strlen(cursor) + 1);
 		}
 		YANKline();
 	}
