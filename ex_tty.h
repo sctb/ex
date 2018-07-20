@@ -74,7 +74,7 @@
  *
  *	@(#)ex_tty.h	1.13 (gritter) 12/1/04
  */
-#include "libterm/libterm.h"
+#include "term.h"
 
 /*
  * Capabilities from termcap

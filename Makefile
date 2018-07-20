@@ -206,12 +206,6 @@ TERMLIB	= curses
 # You may also get terminfo access by using the ncurses library.
 #
 #TERMLIB	= ncurses
-#
-# The preferred choice for ex on Linux distributions, other systems that
-# provide a good termcap file, or when setting the TERMCAP environment
-# variable is deemed sufficient, is the included 2.11BSD termcap library.
-#
-#TERMLIB	= termlib
 
 #
 # Since ex uses sbrk() internally, a conflict with the libc's version of
@@ -240,7 +234,6 @@ RECOVER	= -DEXRECOVER=\"$(LIBEXECDIR)/exrecover\" \
 			-DEXPRESERVE=\"$(LIBEXECDIR)/expreserve\"
 CCFLAGS	= $(CFLAGS) $(WARN) $(CPPFLAGS) $(FEATURES) $(CHARSET) $(OSTYPE) \
 		$(LARGEF) $(RECOVER) $(LANGMSG) $(REINC) $(RPMCFLAGS)
-TLIB	= libterm/libtermlib.a
 INCLUDE	= /usr/include
 OBJS	= ex.o ex_addr.o ex_cmds.o ex_cmds2.o ex_cmdsub.o \
 		ex_data.o ex_extern.o ex_get.o ex_io.o ex_put.o ex_re.o \
@@ -249,7 +242,7 @@ OBJS	= ex.o ex_addr.o ex_cmds.o ex_cmds2.o ex_cmdsub.o \
 		ex_vops.o ex_vops2.o ex_vops3.o ex_vput.o ex_vwind.o \
 		printf.o ex_version.o $(MALLOC)
 HDRS	= ex.h ex_argv.h ex_re.h ex_temp.h ex_tty.h ex_tune.h ex_vars.h \
-		ex_vis.h libterm/libterm.h
+		ex_vis.h term.h
 SRC1	= ex.c ex_addr.c ex_cmds.c ex_cmds2.c ex_cmdsub.c
 SRC2	= ex_data.c ex_get.c ex_io.c ex_put.c ex_re.c
 SRC3	= ex_set.c ex_subr.c ex_tagio.c ex_temp.c ex_tty.c ex_unix.c
@@ -263,13 +256,9 @@ SRC7	= mapmalloc.c malloc.c
 
 all: $(RETGT) exrecover expreserve ex
 
-ex: $(TLIB) $(OBJS)
-	$(CC) -o ex $(LDFLAGS) $(OBJS) $(LDADD) -Llibterm -l$(TERMLIB) $(RELIB)
+ex: $(OBJS)
+	$(CC) -o ex $(LDFLAGS) $(OBJS) $(LDADD) -l$(TERMLIB) $(RELIB)
 	size ex
-
-$(TLIB): libterm/termcap.c libterm/tgoto.c libterm/tputs.c libterm/libterm.h
-	@cd libterm && $(MAKE) CC="$(CC)" \
-		COPT="$(CFLAGS) $(WARN) $(CPPFLAGS) $(OSTYPE)"
 
 exrecover: exrecover.o $(MALLOC)
 	$(CC) -o exrecover $(LDFLAGS) exrecover.o $(MALLOC) $(LDADD)
@@ -285,7 +274,6 @@ uxre:
 		COPT="$(CFLAGS) $(WARN) $(CPPFLAGS) $(OSTYPE)"
 
 clean:
-	@cd libterm && $(MAKE) clean
 	@test ! -d libuxre || (cd libuxre && $(MAKE) clean)
 #	If we dont have ex we cant make it so don't rm ex_vars.h
 	-rm -f ex exrecover expreserve *.o x*.[cs] core errs trace
@@ -334,59 +322,59 @@ install: all install-man
 	chmod 1777 $(DESTDIR)$(PRESERVEDIR)
 
 ex.o: config.h ex_argv.h ex.h ex_proto.h ex_temp.h ex_tty.h ex_tune.h
-ex.o: ex_vars.h libterm/libterm.h
+ex.o: ex_vars.h term.h
 ex_addr.o: config.h ex.h ex_proto.h ex_re.h ex_tune.h ex_vars.h
 ex_cmds.o: config.h ex_argv.h ex.h ex_proto.h ex_temp.h ex_tty.h ex_tune.h
-ex_cmds.o: ex_vars.h ex_vis.h libterm/libterm.h
+ex_cmds.o: ex_vars.h ex_vis.h term.h
 ex_cmds2.o: config.h ex_argv.h ex.h ex_proto.h ex_temp.h ex_tty.h ex_tune.h
-ex_cmds2.o: ex_vars.h ex_vis.h libterm/libterm.h
+ex_cmds2.o: ex_vars.h ex_vis.h term.h
 ex_cmdsub.o: config.h ex_argv.h ex.h ex_proto.h ex_temp.h ex_tty.h ex_tune.h
-ex_cmdsub.o: ex_vars.h ex_vis.h libterm/libterm.h
+ex_cmdsub.o: ex_vars.h ex_vis.h term.h
 ex_data.o: config.h ex.h ex_proto.h ex_tty.h ex_tune.h ex_vars.h
-ex_data.o: libterm/libterm.h
+ex_data.o: term.h
 ex_extern.o: config.h ex_argv.h ex.h ex_proto.h ex_re.h ex_temp.h ex_tty.h
-ex_extern.o: ex_tune.h ex_vars.h ex_vis.h libterm/libterm.h
+ex_extern.o: ex_tune.h ex_vars.h ex_vis.h term.h
 ex_get.o: config.h ex.h ex_proto.h ex_tty.h ex_tune.h ex_vars.h
-ex_get.o: libterm/libterm.h
+ex_get.o: term.h
 ex_io.o: config.h ex_argv.h ex.h ex_proto.h ex_temp.h ex_tty.h ex_tune.h
-ex_io.o: ex_vars.h ex_vis.h libterm/libterm.h
+ex_io.o: ex_vars.h ex_vis.h term.h
 ex_put.o: config.h ex.h ex_proto.h ex_tty.h ex_tune.h ex_vars.h ex_vis.h
-ex_put.o: libterm/libterm.h
+ex_put.o: term.h
 ex_re.o: config.h ex.h ex_proto.h ex_re.h ex_tune.h ex_vars.h
 ex_set.o: config.h ex.h ex_proto.h ex_temp.h ex_tty.h ex_tune.h ex_vars.h
-ex_set.o: libterm/libterm.h
+ex_set.o: term.h
 ex_subr.o: config.h ex.h ex_proto.h ex_re.h ex_tty.h ex_tune.h ex_vars.h
-ex_subr.o: ex_vis.h libterm/libterm.h
+ex_subr.o: ex_vis.h term.h
 ex_tagio.o: config.h ex.h ex_proto.h ex_tune.h ex_vars.h
 ex_temp.o: config.h ex.h ex_proto.h ex_temp.h ex_tty.h ex_tune.h ex_vars.h
-ex_temp.o: ex_vis.h libterm/libterm.h
+ex_temp.o: ex_vis.h term.h
 ex_tty.o: config.h ex.h ex_proto.h ex_tty.h ex_tune.h ex_vars.h
-ex_tty.o: libterm/libterm.h
+ex_tty.o: term.h
 ex_unix.o: config.h ex.h ex_proto.h ex_temp.h ex_tty.h ex_tune.h ex_vars.h
-ex_unix.o: ex_vis.h libterm/libterm.h
+ex_unix.o: ex_vis.h term.h
 ex_v.o: config.h ex.h ex_proto.h ex_re.h ex_tty.h ex_tune.h ex_vars.h ex_vis.h
-ex_v.o: libterm/libterm.h
+ex_v.o: term.h
 ex_vadj.o: config.h ex.h ex_proto.h ex_tty.h ex_tune.h ex_vars.h ex_vis.h
-ex_vadj.o: libterm/libterm.h
+ex_vadj.o: term.h
 ex_vget.o: config.h ex.h ex_proto.h ex_tty.h ex_tune.h ex_vars.h ex_vis.h
-ex_vget.o: libterm/libterm.h
+ex_vget.o: term.h
 ex_vmain.o: config.h ex.h ex_proto.h ex_tty.h ex_tune.h ex_vars.h ex_vis.h
-ex_vmain.o: libterm/libterm.h
+ex_vmain.o: term.h
 ex_voper.o: config.h ex.h ex_proto.h ex_re.h ex_tty.h ex_tune.h ex_vars.h
-ex_voper.o: ex_vis.h libterm/libterm.h
+ex_voper.o: ex_vis.h term.h
 ex_vops.o: config.h ex.h ex_proto.h ex_tty.h ex_tune.h ex_vars.h ex_vis.h
-ex_vops.o: libterm/libterm.h
+ex_vops.o: term.h
 ex_vops2.o: config.h ex.h ex_proto.h ex_tty.h ex_tune.h ex_vars.h ex_vis.h
-ex_vops2.o: libterm/libterm.h
+ex_vops2.o: term.h
 ex_vops3.o: config.h ex.h ex_proto.h ex_tty.h ex_tune.h ex_vars.h ex_vis.h
-ex_vops3.o: libterm/libterm.h
+ex_vops3.o: term.h
 ex_vput.o: config.h ex.h ex_proto.h ex_tty.h ex_tune.h ex_vars.h ex_vis.h
-ex_vput.o: libterm/libterm.h
+ex_vput.o: term.h
 ex_vwind.o: config.h ex.h ex_proto.h ex_tty.h ex_tune.h ex_vars.h ex_vis.h
-ex_vwind.o: libterm/libterm.h
+ex_vwind.o: term.h
 expreserve.o: config.h
 exrecover.o: config.h ex.h ex_proto.h ex_temp.h ex_tty.h ex_tune.h ex_vars.h
-exrecover.o: libterm/libterm.h
+exrecover.o: term.h
 malloc.o: config.h
 mapmalloc.o: config.h
 printf.o: config.h
