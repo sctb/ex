@@ -151,19 +151,9 @@ FEATURES	= -DLISPCODE -DCHDIR -DFASTTAG -DUCVISUAL -DMB -DBIT8
 #LANGMSG		= -DLANGMSG -DCATNAME='"UNKNOWN"'
 
 #
-# For POSIX regular expressions, e.g. the star applied to subexpressions
-# as in \(ab\)* and localized regular expressions like [:class:], [.c.],
-# and [=c=], you need Caldera's 'UNIX(R) Regular Expression Library' or
-# the included derivative of it.
+# POSIX-compatible regular expression library, if necessary.
 #
-# Comment out the three following lines if you do not have it or if it
-# does not compile; it needs some advanced multibyte character support
-# (wchar.h, wctype.h, btowc() etc.) which is not provided by older
-# compilation environments.
-#
-REINC	= -I./libuxre -DUXRE
-RELIB	= -L./libuxre -luxre
-RETGT	= uxre
+#RELIB	= -luxre
 
 #
 # VMUNIX should be correct for any modern Unix.
@@ -233,7 +223,7 @@ STRIP = -s
 RECOVER	= -DEXRECOVER=\"$(LIBEXECDIR)/exrecover\" \
 			-DEXPRESERVE=\"$(LIBEXECDIR)/expreserve\"
 CCFLAGS	= $(CFLAGS) $(WARN) $(CPPFLAGS) $(FEATURES) $(CHARSET) $(OSTYPE) \
-		$(LARGEF) $(RECOVER) $(LANGMSG) $(REINC) $(RPMCFLAGS)
+		$(LARGEF) $(RECOVER) $(LANGMSG) $(RPMCFLAGS)
 INCLUDE	= /usr/include
 OBJS	= ex.o ex_addr.o ex_cmds.o ex_cmds2.o ex_cmdsub.o \
 		ex_data.o ex_extern.o ex_get.o ex_io.o ex_put.o ex_re.o \
@@ -254,7 +244,7 @@ SRC7	= mapmalloc.c malloc.c
 .SUFFIXES: .o .c
 .c.o: ; $(CC) $(CCFLAGS) -c $<
 
-all: $(RETGT) exrecover expreserve ex
+all: exrecover expreserve ex
 
 ex: $(OBJS)
 	$(CC) -o ex $(LDFLAGS) $(OBJS) $(LDADD) -l$(TERMLIB) $(RELIB)
@@ -269,12 +259,7 @@ expreserve: expreserve.o
 ex_vars.h: ex_data.c
 	sh makeoptions $(CCFLAGS)
 
-uxre:
-	@cd libuxre && $(MAKE) CC="$(CC)" \
-		COPT="$(CFLAGS) $(WARN) $(CPPFLAGS) $(OSTYPE)"
-
 clean:
-	@test ! -d libuxre || (cd libuxre && $(MAKE) clean)
 #	If we dont have ex we cant make it so don't rm ex_vars.h
 	-rm -f ex exrecover expreserve *.o x*.[cs] core errs trace
 
